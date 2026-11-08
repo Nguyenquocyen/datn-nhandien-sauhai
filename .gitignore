@@ -1,0 +1,20 @@
+# Chặn môi trường ảo
+.venv/
+__pycache__/
+*.pyc
+
+# Chặn file môi trường (chứa pass)
+.env
+
+# Chặn các file AI nặng
+Code/datasets/
+Code/models/*.pt
+Code/runs/
+Code/training/
+
+# Các trọng số YOLO ở thư mục gốc
+weights/
+*.pt
+
+# Dữ liệu kiểm thử/huấn luyện cục bộ
+test/testdata/

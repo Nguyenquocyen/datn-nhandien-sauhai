@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}T? ?i?n s?u h?i - RICE PEST AI{% endblock %}
+
+{% block content %}
+<div class="flex flex-col w-full">
+<!-- Interactive Navigation Synchronizer (Auto-highlights Shell menu) -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentNav = document.querySelector('nav a[data-path="tu-dien-sau-benh"]');
+      if (currentNav) {
+        document.querySelectorAll('nav a').forEach(el => {
+          el.className = "px-space-md py-space-sm rounded-xl font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all";
+        });
+        currentNav.className = "px-space-md py-space-sm rounded-xl font-label-lg text-label-lg bg-primary text-on-primary shadow-[0_4px_14px_0_rgba(5,150,105,0.25)] transition-all";
+      }
+    });
+  </script>
+<!-- Ambient Backdrop Glow Canvas (Contained) -->
+<div class="relative w-full overflow-hidden pb-16">
+<div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[1000px] h-[340px] bg-gradient-to-b from-primary-fixed/30 via-surface-container-high/40 to-transparent blur-3xl pointer-events-none rounded-full -z-10"></div>
+<!-- Section 1: Hero & Strategic Encyclopedia Intro -->
+<section class="w-full px-margin pt-8 pb-4 max-w-7xl mx-auto flex flex-col items-center text-center">
+<!-- Metric Badges Row -->
+<div class="flex flex-wrap items-center justify-center gap-space-sm mb-space-md">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest shadow-sm text-primary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          Tổng hợp 48 loài dịch hại phổ biến ĐBSCL
+        </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest shadow-sm text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified_user</span>
+          Chuẩn hóa dữ liệu IPM 2026
+        </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary-container/15 text-primary font-label-sm text-label-sm">
+          Tiêu chuẩn Cục Trồng trọt &amp; BVTV
+        </span>
+</div>
+<!-- Main Headline & Narrative -->
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight max-w-4xl">
+        Từ điển Sâu hại Lúa &amp; Giải pháp <span class="text-primary underline decoration-primary-fixed decoration-4 underline-offset-8">IPM</span>
+</h1>
+<p class="mt-space-md font-body-lg text-body-lg text-secondary max-w-3xl leading-relaxed">
+        Hệ thống tra cứu nhận diện hình thái, triệu chứng gây hại và phác đồ quản lý dịch hại tổng hợp (IPM) ưu tiên giải pháp sinh học cho cây lúa nước theo tiêu chuẩn Cục Trồng trọt &amp; BVTV.
+      </p>
+<!-- Section 2: Command Search Bar & Interactive Multi-Tier Filters -->
+<div class="w-full max-w-4xl mt-space-xl">
+<!-- Master Search Field with Shortcut Trigger -->
+<div class="relative w-full rounded-2xl bg-surface-container-lowest shadow-md transition-all duration-300 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20">
+<div class="flex items-center px-5 py-4 gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[28px]">search</span>
+<input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline/70 focus:outline-none" id="encyclopedia-search" placeholder="Tìm kiếm theo tên sâu bệnh, tên khoa học, triệu chứng hoặc giải pháp phòng trừ (VD: Rầy nâu, Đạo ôn, Metarhizium...)" type="text"/>
+<div class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container text-secondary font-label-sm text-label-sm shadow-inner">
+<kbd class="font-sans">Ctrl</kbd>
+<span>+</span>
+<kbd class="font-sans">K</kbd>
+</div>
+<button class="px-5 py-2.5 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 shrink-0">
+<span class="material-symbols-outlined text-[18px]">travel_explore</span>
+<span>Tra cứu</span>
+</button>
+</div>
+</div>
+<!-- Filter Chips Tier 1: Pathogen Class -->
+<div class="flex items-center gap-space-xs mt-space-md overflow-x-auto pb-1 scrollbar-none justify-start sm:justify-center">
+<button class="filter-btn active-pill px-4 py-2 rounded-full font-label-md text-label-md bg-primary text-on-primary shadow-sm hover:shadow transition-all shrink-0">
+            Tất cả (48)
+          </button>
+<button class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high transition-all shrink-0 shadow-sm">
+            Sâu hại cắn phá &amp; chích hút (18)
+          </button>
+<button class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high transition-all shrink-0 shadow-sm">
+            Bệnh do nấm (15)
+          </button>
+<button class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high transition-all shrink-0 shadow-sm">
+            Bệnh do vi khuẩn &amp; virus (9)
+          </button>
+<button class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high transition-all shrink-0 shadow-sm">
+            Ốc &amp; Sinh vật hại khác (6)
+          </button>
+</div>
+<!-- Filter Chips Tier 2: Phenological Growth Stage -->
+<div class="flex items-center justify-center gap-2 mt-3 flex-wrap">
+<span class="font-caption text-caption text-secondary flex items-center gap-1 mr-1">
+<span class="material-symbols-outlined text-[15px] text-primary">eco</span>
+            Giai đoạn sinh trưởng:
+          </span>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm shadow-sm transition-colors">
+            🌱 Mạ (0 - 15 ngày)
+          </button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm shadow-sm transition-colors">
+            🌿 Đẻ nhánh (16 - 40 ngày)
+          </button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm shadow-sm transition-colors">
+            🌾 Làm đòng (41 - 65 ngày)
+          </button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm shadow-sm transition-colors">
+            🌾 Trổ chín (66 - 95 ngày)
+          </button>
+</div>
+</div>
+</section>
+<!-- Section 3: Primary Diagnostic Grid (4 Columns Desktop, Exactly 8 Core Profiles) -->
+<section class="w-full px-margin mt-space-lg max-w-7xl mx-auto">
+<!-- Grid Summary & Sort Controls -->
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Danh mục nhận diện chuyên sâu</span>
+<span class="font-caption text-caption px-2 py-0.5 rounded-full bg-primary-container/15 text-primary">Hiển thị 8 / 48 loài</span>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-secondary font-label-sm text-label-sm">
+<span>Sắp xếp theo:</span>
+<select class="bg-surface-container-lowest rounded-lg px-2.5 py-1 text-on-surface shadow-sm focus:outline-none">
+<option>Mức độ đe dọa cao nhất</option>
+<option>Tần suất xuất hiện mùa vụ</option>
+<option>Theo thứ tự bảng chữ cái</option>
+</select>
+</div>
+</div>
+<!-- Bento-style Clinical Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Card 1: Rầy nâu -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Macro clinical photography of Brown Planthopper Nilaparvata lugens cluster congregating at the wet lower stem of an irrigated rice plant, high magnification scientific agricultural field trial lighting, diagnostic crisp focus on insect anatomy and sap drops" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEnZ0G6O8AEAr1IzIYQ1iM9aJAR18qH8mM3NfDZAcvT3VOuCIx7T_wkbs9MABsQxupky7fmYdW0WzGzOz7n-6bucEIdE2vHe6W-2Kl5MlDrnr_li5Xhp5tm-ntvBDUSm6dWOwrFkEmv-42apXn6zOrKI_Jy4i9vQQ1do1I8Y8Q46MD0liosM77UD_cv03K4t7A7a6irqc8EQWbILqMtWi7CqXkqZtHSaC99Zv_T8G4u8PTKvqmFmVU"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span> Cảnh báo dịch
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Côn trùng chích hút
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: INS-01
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<div class="flex items-baseline justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+                Rầy nâu
+              </h2>
+</div>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Nilaparvata lugens
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Chích hút nhựa gốc thân gây hiện tượng "cháy rầy" từng chòm. Đồng thời là môi giới truyền virus gây bệnh Vàng lùn - Lùn xoắn lá cực kỳ nguy hại.
+            </p>
+<!-- IPM Micro Box -->
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Bẫy đèn dự báo + Bảo tồn bọ xít mù xanh &amp; nhện lycosa + Nấm xanh <em>Metarhizium anisopliae</em>.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Bệnh Đạo ôn lúa -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Detailed agricultural pathology photograph of Rice Blast disease caused by Magnaporthe oryzae fungus, displaying classic spindle-shaped eye spots with necrotic gray centers and brown reddish margins on vivid green rice leaves under diffuse overcast sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD38wppimpqNL95WyS_Tcw2FIEk2_YTOmNaklwWlKzYZt47-UFUGPakDXXnZoHeTFj4Kd2gbnON7or_GcMHfFTvxMgb_Cy-ESeD4QTLaF3nbvC-hoRLu8K_Lc9jSTqG_1s1_LDyDzgM4HZAnM_c4STOw8o3HPtu8UCGGV-Af5WOoIFmLVN_TnJ2VKTTYl8b05Rohmxe8SCLiaeDg_UK2NS9h57OYDl_9tFWUFU7XuRhfx5HvZbBkoeR"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">dangerous</span> Cực kỳ phổ biến
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Bệnh nấm hại
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: FUN-04
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Bệnh Đạo ôn lúa
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Magnaporthe oryzae
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Vết bệnh đặc trưng hình mắt én hai đầu nhọn hoại tử phiến lá. Tấn công mạnh cổ bông khi trổ khiến bông thối gãy, lép hoàn toàn làm mất trắng năng suất.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Hạn chế bón thừa Đạm (N) + Giữ ẩm ruộng + Chế phẩm <em>Trichoderma spp.</em> hoặc Tricyclazole khi chớm bệnh.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Bọ trĩ (Bù lạch) -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Ultra close up agricultural diagnostic photo of tiny rice thrips Stenchaetothrips biformis crawling on tender young rice seedlings, curled leaf tips turning dry brown with silver streaking, clean laboratory illumination on biological specimens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmRHkIOH2BFNuD9xOCRjq6qypILARLoxtFDNTTLFqRIzS5T8xbBLLHzRfjORBwSFFGac_-VVDA7FNyBUBDxEzODlNZbeycEtI5GVBN2WQvXhuBPCuDdmdJ01i9cx7FH1T2a1zDMRMEkGNrc39ExHLwow8PH5xPLYWpqhzmVkWNkK7AO0vPJ9JR_NIc653k76AfvUupZei_QDgKFdgx5NcdD0pEhqkZJygUmtHNq2TCBbgbmYGr0Ie6"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm shadow-sm">
+                Giai đoạn Mạ non
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Côn trùng cắn hút
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: INS-07
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Bọ trĩ (Bù lạch)
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Stenchaetothrips biformis
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Cả trưởng thành và ấu trùng dũa rách biểu bì hút nhựa, làm chóp lá vàng khô cuốn tròn lại như que tăm, cây mạ còi cọc không phát triển được.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Bơm nước ngập đọt mạ 1-2 ngày để dìm bọ + Phun dịch tỏi ớt sinh học hoặc dầu khoáng sinh học SK Enspray.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Sâu cuốn lá nhỏ -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Agronomic field macro photograph showing Rice Leaf Folder caterpillar Cnaphalocrocis medinalis rolling rice leaf with silk threads, scraping chlorophyll leaving translucent white vertical stripes across the green canopy, crisp sunny natural field setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5L_wqmoLDxnrtF2ozb2h2YRBFaWLo5_hS9AaYHLVxhT8Uv1RloBmHm07oigRPeS5gHb2x2JRQAFGy9Bd0wYnOM7P-UEn_GMd47PvayFHZ_PDN1ZPRovsfGCae8kZOvGaVeXLZ1H40bIYFEJQ0PzEqIMdNsEnCoRc2GnTTjh4VAv6Bl_SirUYDhLwpnkJ6wvzrJNQ-TqOev79QgWeYMIdVvKV8R9N7ZqETxHih53XW3I80eJHoMIfu"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm shadow-sm">
+                Đẻ nhánh &amp; Đòng
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Bộ cánh vảy Lepidoptera
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: INS-02
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Sâu cuốn lá nhỏ
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Cnaphalocrocis medinalis
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Nhả tơ kết hai mép lá lúa tạo thành tổ kén tròn dài, ăn biểu bì xanh để lại màng trắng xơ xác, làm giảm nghiêm trọng diện tích quang hợp nuôi đòng.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Trồng hoa bờ ruộng dẫn dụ ong ký sinh mắt đỏ + Phun vi khuẩn sinh học <em>Bacillus thuringiensis (Bt)</em> lứa sâu 1-2.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 5: Bệnh Cháy bìa lá (Bạc lá) -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Agronomic botanical close-up photograph of Bacterial Leaf Blight Xanthomonas oryzae pv. oryzae on mature paddy leaves, distinctive wavy orange yellow margin fading into dry grayish-white lesions on outer leaf margins under humid overcast monsoon atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0DTj95LlmfqF_IsViQdTxuKlGM1OviN6tgsgeLidbBU2iuyK2679vmAoLFznJKI9t74rwllPu6n0SoouY6IGqaRRcfG6JGRLaUBLY9LMD8TzmxikKNnCW0M2UQBQsTxwYtMGLllGMTFACuw9w5E-DJhSSsqcpnHa_hA4x1bKvoyd-PgGyy-4gu2yO9hHiH2hF6hSKGfYZDEPeLSKWSnyzVzd6VgJ9bjpjbhhGTErvqSzCFRhWF-UV"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm shadow-sm">
+                Lây lan do mưa bão
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Bệnh do vi khuẩn
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: BAC-01
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Bệnh Cháy bìa lá (Bạc lá)
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Xanthomonas oryzae pv. oryzae
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Vi khuẩn xâm nhập qua vết thương cơ giới và thủy khổng, tạo vệt gợn sóng màu vàng cam khô cháy dọc hai mép lá, sáng sớm ứ giọt dịch vi khuẩn đục.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Cắt tỉa mép lá bệnh + Ngưng bón Đạm hoàn toàn, bổ sung Kali + Phun chế phẩm kháng sinh sinh học Kasugamycin gốc sinh học.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 6: Bệnh Đốm vằn -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Scientific phytopathology close-up photo of Sheath Blight Rhizoctonia solani on lower rice culms and leaf sheaths, tiger skin irregular banding patterns with dark brown boundaries and greyish white centers near the muddy water waterline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1TBCtvvJ_c_NoBEZPFxt9rfaf3p_p9AIuNygqFMDKMCu25bp9KWJEYOXIIpkxSMVZjwZvQi6LhdgWK4Tm85g4HmMmt9PFZA-HwqmDv080dhkJktJZqcZFZvKghNvt0nDwnqGMYf1_taSGWehxAXypHU8UJneoKYFrC7JhZF9TAMnyQELZROOdrPFc7-E68fixaVK0K20PiPvmPoqjc9FB6ssuPqdaArBcalKYolstPLQ7PeSkXK3t"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shadow-sm">
+                Mật độ gieo sạ dày
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Nấm thủy sinh
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: FUN-02
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Bệnh Đốm vằn
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Rhizoctonia solani
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Vết loang hình da hổ quanh bẹ lá gần gốc nước, sau lan nhanh lên phiến lá đòng làm đổ ngã và giảm trọng lượng ngàn hạt lúa nghiêm trọng.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Rút nước phơi ruộng gián đoạn (Nông - Lộ - Phơi) + Phun nấm đối kháng <em>Chaetomium cupreum</em> hoặc Validamycin.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 7: Sâu đục thân bướm 2 chấm -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Agronomic entomological diagnostic photo of Yellow Stem Borer Scirpophaga incertulas larva boring inside a dissected rice stalk stem, visible frass and white withered deadheart panicle against healthy green field backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTuCRecd4siyQsyu4bhO5TxEry-OQeVzz-D3DfEu4wJ5Ku7m8_C1dKjICoWIS0x24yuc7haZttt4541NVa01XYioXQ7gPPV9-TIjCP8pIdjxngWjOMrzu9CDA-ZaxNwOaJRSqzsznc5BJJLXBo9zIa5K4EAH1Bn5k0-aK3DwpQ7a5iM4NefRL0LNumdxXNE56GIbTWBsZsNjGi04Szx2CObQbnJblXacVgzq04CgC7NhdxGZNTS4wD"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm shadow-sm">
+                Gây dảnh héo &amp; Bông bạc
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Sâu hại thân
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: INS-03
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Sâu đục thân 2 chấm
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Scirpophaga incertulas
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Sâu non cắn đứt mạch dẫn bên trong thân khiến dảnh lúa héo khô lúc nhỏ, hoặc làm toàn bộ bông lúa bị bạc trắng hoàn toàn không thể thụ phấn vào gạo.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Ngắt ổ trứng bướm ở vườn ươm + Dùng bẫy Pheromone giới tính + Thả ong ký sinh <em>Trichogramma chilonis</em> diệt trứng.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 8: Muỗi hành (Sâu năn) -->
+<article class="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col">
+<div class="overflow-hidden h-48 relative bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Agricultural diagnosis photography showing Rice Gall Midge Orseolia oryzae damage, deformed tubular onion gall leaf shoot standing erect instead of a normal rice tiller, high contrast scientific agronomy documentation under clean natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiWtd-0f8TdSuL1Ru7EyDgW2atavswSHuYdJqI5FoEjP6snZBj2Tf7rGQNjKDPN_nOcQN4EGof2nqodtCeE-VlapYiRg98sV543lDOlqAZWichzY3sxjiDGRvAmSSW3sH2aX0E0yfbxZ6f5ILuLDI8KWo5tqgsx4Df4Wx_y2BtAp9jM1uWiOLqy2Abllj4zEnAckmKkMvEg9mJVjpiHox4yqL-6fqj0BHzpswqwtntbcVrTJW9wR29"/>
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm shadow-sm">
+                Đặc thù vụ Đông Xuân
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-caption text-caption">
+                Diptera gây biến dị
+              </span>
+</div>
+<span class="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-label-sm text-label-sm backdrop-blur-sm">
+              ICD-AGRI: INS-05
+            </span>
+</div>
+<div class="p-5 flex flex-col flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+              Muỗi hành (Sâu năn)
+            </h2>
+<p class="font-caption text-caption italic text-secondary -mt-0.5 mb-2">
+              Orseolia oryzae
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-3">
+              Ấu trùng chui vào điểm sinh trưởng kích thích bẹ đọt phình to biến dạng thành ống tròn rỗng như cọng hành, làm chồi mất khả năng trổ đòng.
+            </p>
+<div class="mt-auto p-2.5 rounded-xl bg-surface-container-low mb-4">
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm mb-1">
+<span class="material-symbols-outlined text-[15px]">psychology_alt</span>
+<span>Phác đồ IPM ưu tiên:</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">
+                Gieo sạ đồng loạt tập trung né rầy/muỗi + Bảo tồn ong ký sinh <em>Platygaster oryzae</em> + Tăng cường bón Lân và Kali sớm.
+              </p>
+</div>
+<button class="text-primary bg-primary-fixed/30 hover:bg-primary hover:text-on-primary font-label-sm text-label-sm py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 w-full">
+<span>Đọc chi tiết phác đồ</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+</div>
+</section>
+<!-- Section 4: Pagination Bar & Expert Guidelines Footer Banner -->
+<section class="w-full px-margin mt-space-xl max-w-7xl mx-auto flex flex-col gap-space-lg">
+<!-- Pagination Controls -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-6 rounded-2xl bg-surface-container-lowest shadow-sm">
+<span class="font-body-sm text-body-sm text-secondary">
+          Hiển thị trang <strong class="text-on-surface font-label-lg">1</strong> trên <strong class="text-on-surface font-label-lg">6</strong> trang (Tổng 48 hồ sơ)
+        </span>
+<div class="flex items-center gap-1.5">
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low text-secondary font-label-md text-label-md opacity-60 cursor-not-allowed flex items-center gap-1" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+            Trước
+          </button>
+<button class="w-9 h-9 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-sm">1</button>
+<button class="w-9 h-9 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors">2</button>
+<button class="w-9 h-9 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors">3</button>
+<span class="px-1 text-secondary">...</span>
+<button class="w-9 h-9 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors">6</button>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low hover:bg-primary hover:text-on-primary text-on-surface font-label-md text-label-md transition-all flex items-center gap-1">
+            Tiếp
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- High-Impact Value Add: Integrated Handbook Download & Technical Support Callout -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-primary-container to-tertiary text-on-primary p-8 md:p-10 shadow-xl">
+<div class="absolute -right-10 -bottom-10 w-72 h-72 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+<div class="flex items-start gap-5">
+<div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-[36px] text-primary-fixed">menu_book</span>
+</div>
+<div class="flex flex-col">
+<span class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider mb-1">
+                Tài liệu kỹ thuật mở rộng • Viện BVTV Việt Nam
+              </span>
+<h3 class="font-headline-md text-headline-md font-bold tracking-tight">
+                Tải trọn bộ Cẩm nang Quản lý Dịch hại Tổng hợp IPM 2026
+              </h3>
+<p class="font-body-md text-body-md text-on-primary/80 mt-1 max-w-2xl">
+                Tập hợp đầy đủ 120 trang phác đồ phòng trị sinh học, lịch trình bẫy đèn 13 tỉnh Đồng bằng sông Cửu Long và bảng tra liều lượng thiên địch an toàn.
+              </p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3 shrink-0 w-full lg:w-auto">
+<a class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-surface-container-lowest text-primary hover:bg-primary-fixed font-label-lg text-label-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Tải tài liệu (PDF - 120 trang)</span>
+</a>
+<button class="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-on-primary font-label-lg text-label-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">help_center</span>
+<span>Hỏi đáp Kỹ sư Nông học</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Inline Client-side Micro-Interactions -->
+<script>
+    // Search keyboard shortcut (Ctrl+K or Cmd+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('encyclopedia-search');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    });
+
+    // Pill Filter Interactivity
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.className = "filter-btn px-4 py-2 rounded-full font-label-md text-label-md bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high transition-all shrink-0 shadow-sm";
+        });
+        btn.className = "filter-btn active-pill px-4 py-2 rounded-full font-label-md text-label-md bg-primary text-on-primary shadow-sm hover:shadow transition-all shrink-0";
+      });
+    });
+  </script>
+</div>
+{% endblock %}

@@ -1,0 +1,744 @@
+{% extends "base.html" %}
+
+{% block title %}Nh?t k? qu?t - RICE PEST AI{% endblock %}
+
+{% block content %}
+<div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-margin py-space-lg flex flex-col gap-space-lg">
+<!-- Breadcrumbs -->
+<nav aria-label="Breadcrumb" class="flex items-center gap-space-xs text-secondary font-label-md text-label-md">
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-sm">home</span>
+        Trang chủ
+      </a>
+<span class="text-outline-variant font-caption">/</span>
+<span class="text-on-surface font-semibold text-primary">Nhật ký quét AI &amp; Ca bệnh đã lưu</span>
+</nav>
+<!-- Header Section & Quick Stats -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">verified</span> Hệ thống DSS Thực địa
+          </span>
+<span class="text-caption text-secondary font-caption">• Đồng bộ máy bay Drone &amp; Thiết bị cầm tay</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Nhật ký quét AI &amp; Các ca bệnh đã lưu
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Lưu trữ toàn bộ dữ liệu nhận diện thị giác máy tính, phân tích dịch hại thực địa và quyết định điều trị lâm sàng DSS.
+        </p>
+</div>
+<!-- Quick Stats & Primary CTAs -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
+<!-- Stats Mini-group -->
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-space-xs rounded-xl shadow-[0_1px_4px_rgba(15,23,42,0.04)]">
+<div class="px-space-md py-space-xs flex flex-col">
+<span class="font-caption text-caption text-secondary">Tổng ca quét</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold leading-none mt-1">128</span>
+</div>
+<div class="w-px h-8 bg-surface-container-high"></div>
+<div class="px-space-md py-space-xs flex flex-col">
+<span class="font-caption text-caption text-secondary">Độ tin cậy TB</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold leading-none mt-1">93.8%</span>
+</div>
+<div class="w-px h-8 bg-surface-container-high"></div>
+<div class="px-space-md py-space-xs flex flex-col">
+<span class="font-caption text-caption text-secondary">Giải pháp sinh học</span>
+<span class="font-headline-sm text-headline-sm text-primary-container font-bold leading-none mt-1">67% <span class="text-xs font-normal text-secondary">(86 ca)</span></span>
+</div>
+</div>
+<!-- Buttons -->
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-space-sm rounded-xl font-label-md text-label-md bg-surface-container-lowest hover:bg-surface-container-low text-on-surface flex items-center gap-1 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-sm">download</span>
+<span class="hidden md:inline">Xuất</span> Excel/CSV
+          </button>
+<button class="px-space-md py-space-sm rounded-xl font-label-md text-label-md bg-primary hover:bg-primary-container text-on-primary flex items-center gap-1 shadow-[0_4px_14px_0_rgba(5,150,105,0.25)] transition-all hover:scale-[1.01] active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-sm">add_a_photo</span>
+            Quét ca mới
+          </button>
+</div>
+</div>
+</div>
+<!-- Filter & Search Panel -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex flex-col gap-space-md">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<!-- Search bar -->
+<div class="md:col-span-4 relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-lg">search</span>
+<input class="w-full pl-9 pr-8 py-2.5 bg-surface-container-low text-on-surface rounded-xl font-body-sm text-body-sm placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all" id="table-search" placeholder="Mã mẫu, tên sâu bệnh, tọa độ hoặc tên nông hộ..." type="text"/>
+<button class="absolute right-2.5 text-outline hover:text-on-surface text-xs" onclick="document.getElementById('table-search').value = ''" type="button">
+<span class="material-symbols-outlined text-sm">cancel</span>
+</button>
+</div>
+<!-- Pest Type Select -->
+<div class="md:col-span-3">
+<div class="relative">
+<select class="w-full py-2.5 pl-3 pr-8 bg-surface-container-low text-on-surface rounded-xl font-body-sm text-body-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option value="all">Tất cả loại dịch hại (Tất cả)</option>
+<option value="dao-on">Đạo ôn lúa (Magnaporthe)</option>
+<option value="bo-tri">Bọ trĩ lúa (Thrips)</option>
+<option value="ray-nau">Rầy nâu (BPH)</option>
+<option value="cuon-la">Sâu cuốn lá nhỏ</option>
+<option value="bac-la">Bệnh bạc lá (Xanthomonas)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-secondary pointer-events-none text-base">expand_more</span>
+</div>
+</div>
+<!-- Date Range Select -->
+<div class="md:col-span-2">
+<div class="relative">
+<select class="w-full py-2.5 pl-3 pr-8 bg-surface-container-low text-on-surface rounded-xl font-body-sm text-body-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option value="7d">7 ngày qua</option>
+<option value="he-thu">Vụ Hè Thu 2026</option>
+<option value="dong-xuan">Vụ Đông Xuân 2025-2026</option>
+<option value="month">Tháng này</option>
+<option value="custom">Tùy chỉnh...</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-secondary pointer-events-none text-base">calendar_today</span>
+</div>
+</div>
+<!-- Treatment Method Select -->
+<div class="md:col-span-2">
+<div class="relative">
+<select class="w-full py-2.5 pl-3 pr-8 bg-surface-container-low text-on-surface rounded-xl font-body-sm text-body-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option value="all">Tất cả giải pháp</option>
+<option value="bio">Sinh học (Ưu tiên xanh)</option>
+<option value="chem">Hóa học (Dự phòng)</option>
+<option value="combo">Giải pháp kết hợp IPM</option>
+<option value="pending">Chờ thẩm định</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-secondary pointer-events-none text-base">filter_alt</span>
+</div>
+</div>
+<!-- Reset CTA -->
+<div class="md:col-span-1 flex justify-end">
+<button class="w-full md:w-auto p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-secondary hover:text-on-surface flex items-center justify-center transition-colors" title="Đặt lại bộ lọc" type="button">
+<span class="material-symbols-outlined text-sm">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Active Filter Tags Row -->
+<div class="flex flex-wrap items-center gap-space-xs pt-space-xs">
+<span class="font-caption text-caption text-secondary">Đang áp dụng:</span>
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1">
+          Khu vực: ĐBSCL
+          <span class="material-symbols-outlined text-xs cursor-pointer hover:text-error">close</span>
+</span>
+<span class="px-space-sm py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+          Cây trồng: Lúa nước (Oryza sativa)
+          <span class="material-symbols-outlined text-xs cursor-pointer hover:text-error">close</span>
+</span>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+          Độ tin cậy &gt; 85%
+          <span class="material-symbols-outlined text-xs cursor-pointer hover:text-error">close</span>
+</span>
+<button class="font-label-sm text-label-sm text-primary hover:underline ml-1" type="button">Xóa tất cả</button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto w-full">
+<table id="history-table" class="w-full min-w-[1100px] text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-space-md px-space-md text-center w-16" scope="col">Mẫu</th>
+<th class="py-space-md px-space-md" scope="col">Mã Ca &amp; Dịch Hại Chẩn Đoán</th>
+<th class="py-space-md px-space-md w-44" scope="col">Độ Tin Cậy AI</th>
+<th class="py-space-md px-space-md" scope="col">Khuyến Cáo DSS Đã Chọn</th>
+<th class="py-space-md px-space-md" scope="col">Thời Gian &amp; Vị Trí Thực Địa</th>
+<th class="py-space-md px-space-md text-right w-28" scope="col">Thao Tác</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low text-body-sm font-body-sm">
+<!-- Row 1: Đạo ôn lúa (Magnaporthe oryzae) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Macro close-up shot of rice plant leaf showing diamond-shaped blast lesions with greyish center and dark reddish-brown margins under natural sunlight in Mekong Delta paddy field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6sfGqp-fVfJu-J0nIcMxWYE5-H7PnP0KzApOh-9F_d17X7a_oSgbGpYfztxzh4FVzriWrmnb6CAhSRJsnsRJ7-L_m1oZc7u_XjrAQdtRiJs4cK0LKlbxZT6uE3nfK0mnSGFd-Mov_ulEbl9JglCe5pE9iZwadW7VhHp_r0yI2zVlwZxiXo0y6NfcKZByJK-6LoNPGFdBjQsyqndue0HiFHGsCQpUVcgk_ZTC_8UKsyaa75P14_0vV"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-error rounded-tl-md" title="Mức độ nghiêm trọng cao"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Bệnh Đạo ôn lá (Cháy lá)</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">Cấp 3</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Magnaporthe oryzae</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0842</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống OM5451 • Đẻ nhánh</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span> 96.4%
+                    </span>
+<span class="text-secondary font-caption">Rất cao</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 96.4%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">eco</span>
+                    Nấm đối kháng Trichoderma hazianum (Sinh học)
+                  </span>
+<span class="text-caption text-secondary">Liều lượng: 2.5kg/ha • Phun sương chiều mát</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">24/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 10:42
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Thoại Sơn, An Giang
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" title="Xem chi tiết ca bệnh" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" title="Thêm thao tác" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Bọ trĩ lúa (Stenchaetothrips biformis) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="High magnification field view of rice shoot infested with tiny elongated pale yellow thrips larvae crawling on green wet rice leaf surface with water droplets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jzpjWN4oxKARrbyjkFVRlufMYutprfHkn_bAok3_epTSwS8o9du7eHhGQQXcu9nCUg_hQCSdQuEq-HwzLTEACtoideJgMkiw1FjftYB52CSfTlT5KNoaWzeIRmErBPX6H96J1MCaWUhXORiHXVB1mtzpU_cfAbAUcM-MNnj57SSJaOUDlSNHSZ45dpYqhNe9rvwVz0Ra-Xjv6X8SdY1I3N8kvEWUUSjTFSZKwS2Y37jsYjc97bFl"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Bọ trĩ lúa (Bù lạch)</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Cấp 2</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Stenchaetothrips biformis</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0839</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống Đài Thơm 8 • Mạ non</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 92.1%
+                    </span>
+<span class="text-secondary font-caption">Cao</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 92.1%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">energy_savings_leaf</span>
+                    Dịch chiết hạt Neem Azadirachtin (Sinh học)
+                  </span>
+<span class="text-caption text-secondary">Kết hợp giữ mực nước 3-5cm để nhấn chìm ấu trùng</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">23/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 14:15
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Lấp Vò, Đồng Tháp
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Rầy nâu (Nilaparvata lugens) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Dense colony of brown planthoppers clustered on lower rice stems near water line in lush green rice field, sharp agricultural macro view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF-bnlaL5uBUuUSR_zrfIBusUQzp3S0sY_21Nfbfp8G8TTAPDp02Jw16oL85ZkJ4Lro-qRfjMn2KS2uW-Pcpe1w9Esd8nAn4wsRm0-TkKoRC0rOQCSQzDIuHTPB4nbBJkGcULAYy52VKU_YqvnTT7sC6J-NJstKFYqDRbWIFq-2oBN9ZB1Js5Dlca2Xk4Q2dCgdNTEqNTnUeKTj3FwiGYOuY81QjmL1MwR5xVVz9QnAaZyvj_PgknQ"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-error rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Rầy nâu hại lúa</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">Mật độ cao</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Nilaparvata lugens</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0820</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống Jasmine 85 • Làm đòng</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span> 95.8%
+                    </span>
+<span class="text-secondary font-caption">Rất cao</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 95.8%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">bug_report</span>
+                    Nấm xanh Metarhizium anisopliae (Sinh học)
+                  </span>
+<span class="text-caption text-secondary">Bảo tồn thiên địch bọ xít mù xanh &amp; nhện lycosa</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">21/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 08:30
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Tân Hiệp, Kiên Giang
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Bệnh bạc lá (Xanthomonas oryzae) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Rice field showing severe bacterial leaf blight infection with wavy bleached grey-white margins spreading down leaf blade edges under cloudy overcast sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb3Fe1SHHbkn9nnT2bNY1zIxMd6EE4BBu6XJtGjt63ySzEiM_Kbaat1UwmmODqZM1RT1waerrAIxGOZ0RozKat0LM7S8VJ3w1aoJN5WXPOHrxzbwMbEAtaiEkVwekLqELJVeGKq9-g7xihCOmeeuQPtKdEA0eJWdT4ms5qUoMEOG83nYhuKF3TXWMkLw9hXn55ze9mukJL33vK5UvlAxXM_D7FJbZiRjjNQxGOGUT4OPEfuKA5yXor"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-secondary-container rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Cháy bìa lá (Bạc lá vi khuẩn)</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Cấp 2</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Xanthomonas oryzae pv. oryzae</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0814</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống ST25 • Trỗ lẹt xẹt</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 89.4%
+                    </span>
+<span class="text-secondary font-caption">Khá</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 89.4%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">vaccines</span>
+                    Phun Oxolinic acid + Rút cạn nước (Canh tác)
+                  </span>
+<span class="text-caption text-secondary">Ngừng bón thừa phân đạm hóa học ngay lập tức</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">18/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 16:05
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Phụng Hiệp, Hậu Giang
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Sâu cuốn lá nhỏ (Cnaphalocrocis medinalis) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Rice leaves folded longitudinally by caterpillars with transparent white feeding stripes against healthy green background, high resolution botany photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB1JOSSkb8kGpgVn9FMX8jrhohGa8Ofw_7gPPFn9L8txiO_Vb8ZmNFTasAzR9zZ_pgDPOWmpOjMXaRwAhK9dQzrCjxdAjAebp6jkxUVIqKh3BMjPWB7xKx_n3P7CV_nII9NWf3K9I6G_mJyn7H9c-t3PbVof4Me4utumWKa-tX97TYo-cyAw_PJvP-Z1cXRVtF6ZbbMGR18U2HYoqZBZx6J4hU3q3NECRJQJQcrsI5nhelmUarUXe2"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-primary-container rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Sâu cuốn lá nhỏ</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">Kiểm soát tốt</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Cnaphalocrocis medinalis</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0803</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống Nàng Hoa 9 • Cuối đẻ nhánh</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 94.7%
+                    </span>
+<span class="text-secondary font-caption">Rất cao</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 94.7%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">biotech</span>
+                    Vi khuẩn Bacillus thuringiensis Bt (Sinh học)
+                  </span>
+<span class="text-caption text-secondary">Phun lúc sâu non tuổi 1-2 mới nở</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">15/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 09:18
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Cai Lậy, Tiền Giang
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Đạo ôn cổ bông (Cực kỳ nguy hiểm - Hóa học can thiệp khẩn cấp) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Macro view of neck blast on rice panicle showing dark brown necrotic lesion strangling the panicle base causing white chaff and withered grains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIBVmtbpJxhS3mQ6YHYncAi44WGSWZcAcVwZ-G8p_g5P_H9di0tBXEe7HKSyKu7I6C-4-1aJkfy4S_XJmYNYHEM8iwEu36et82DpXrTrTf8CzzhXxb0mcYhQR5awvGD5_GtZk7YplqDxuW6Yj-jpl67EpGBdK3a9t-pgnW2iY5ST1VgKIBLdUJBYIrkjVbGe1BfN_YVutuJPHFuYr4YTKKsiHrBjq1zrXIy4t_lc1fhdmoG1jLuQue"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-error rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Đạo ôn cổ bông (Nghẹt bông)</span>
+<span class="px-1.5 py-0.5 rounded bg-error text-on-error font-label-sm text-label-sm">Khẩn cấp</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Magnaporthe oryzae (Panicle blast)</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0795</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống Đài Thơm 8 • Trỗ đều</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span> 98.1%
+                    </span>
+<span class="text-secondary font-caption">Tuyệt đối</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 98.1%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">warning</span>
+                    Phun Tricyclazole + Isoprothiolane (Hóa học can thiệp)
+                  </span>
+<span class="text-caption text-secondary">Cách ly 14 ngày trước khi thu hoạch</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">12/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 11:20
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Cờ Đỏ, Cần Thơ
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 7: Bệnh đốm vằn (Rhizoctonia solani) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Banded sheath blight lesions resembling water-soaked snakeskin patterns on lower rice sheath stalks, field pathology high precision shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZIXglwhtpMR0tmMFWwU8VU_FWRvYKI8Qets2OetMPDdTWl65F77glcqfjeruODStR2QJ0dFxunot2Sn24NxdgRb1k2wUQqjHi8HZouLagafHpQ_Tu9FSTBGz-jZrSBoo38cNKFqQ1vCt1EC_6zOlxdNXZ9LzKxcwm0LhxaRRTijiMaeB5t36fleDFC1dG6daZkVWvGJbluLXh4H--vtEB6AVjyjUrqG3MmqzzF_IfgilTWK-YMtgz"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Bệnh Đốm vằn hại lúa</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Cấp 2</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Rhizoctonia solani</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0780</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống OM18 • Đứng cái</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 91.5%
+                    </span>
+<span class="text-secondary font-caption">Cao</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 91.5%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">sanitizer</span>
+                    Validamycin A (Kháng sinh sinh học)
+                  </span>
+<span class="text-caption text-secondary">Vệ sinh đồng ruộng, tỉa bớt bẹ lá gốc mục rỗng</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">09/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 15:40
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Tam Nông, Đồng Tháp
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 8: Sâu đục thân bướm 2 chấm (Scirpophaga incertulas) -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs mx-auto bg-surface-container-high">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="Rice tiller showing yellow deadheart caused by stem borer larvae feeding inside the culm, scientific botanical diagnostic image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGWrjekEAfS-tYXYKXQvMdyLOUUHIFAatR0yvcf4FOmkBUJnhRC30NY2531OmlKsi1z13Ew8E5_0FChTWS7SKxfEBlyIfeKK9MiCl-hvJEwJizP8tz6zGlcvtwILKvNkuxEwpjIyVfcqGjwJ8CN67PfZh8FigRT7JPs4jT-UB5bgOLQfA1jvYB_pwBVl6JurJOnpg5YWgzb0XdtVKpHKPcnijyxvG05ojnX4PafTFG7OSyBEwLNyBE"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-tl-md"></span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Sâu đục thân bướm hai chấm</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Dảnh héo</span>
+</div>
+<span class="italic text-secondary font-caption text-caption">Scirpophaga incertulas</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-mono text-xs text-on-surface-variant font-medium">#BVTV-2026-0762</span>
+<span class="text-caption text-outline-variant">•</span>
+<span class="text-caption text-secondary">Giống Nếp bè • Đẻ nhánh rộ</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 88.6%
+                    </span>
+<span class="text-secondary font-caption">Khá</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 88.6%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col items-start gap-1">
+<span class="px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">pest_control</span>
+                    Thả ong ký sinh Trichogramma (Sinh học)
+                  </span>
+<span class="text-caption text-secondary">Bẫy đèn kiểm tra bướm vũ hóa rộ</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface">04/10/2026</span>
+<span class="text-caption text-secondary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 17:10
+                    <span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-xs">location_on</span> Châu Phú, An Giang
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-space-md py-space-sm bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-space-sm border-t border-surface-container-low">
+<div class="text-secondary font-caption text-caption">
+          Hiển thị <span class="font-bold text-on-surface">1 - 8</span> trong tổng số <span class="font-bold text-on-surface">128</span> ca bệnh thực địa
+        </div>
+<nav aria-label="Pagination Navigation" class="flex items-center gap-1">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-secondary hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+            Trước
+          </button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold shadow-xs" type="button">
+            1
+          </button>
+<button class="w-8 h-8 rounded-lg text-secondary hover:bg-surface-container-low hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">
+            2
+          </button>
+<button class="w-8 h-8 rounded-lg text-secondary hover:bg-surface-container-low hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">
+            3
+          </button>
+<span class="px-1 text-secondary font-caption">...</span>
+<button class="w-8 h-8 rounded-lg text-secondary hover:bg-surface-container-low hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">
+            16
+          </button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-low text-secondary hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-colors flex items-center gap-1" type="button">
+            Tiếp
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+<!-- Analytical Distribution Cards (Bento style supplemental info) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Mini Card 1: Biological Efficacy -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Mô hình AI ResNet-YOLO v2.4</span>
+<p class="font-caption text-caption text-secondary mt-1">Đã huấn luyện trên 450,000 bức ảnh sâu bệnh lúa vùng hạ lưu sông Mê Kông với độ tin cậy thực tế 94.2%.</p>
+</div>
+</div>
+<!-- Mini Card 2: Green Prescription -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary-container shrink-0">
+<span class="material-symbols-outlined">science</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Quy tắc DSS Ưu tiên Sinh học</span>
+<p class="font-caption text-caption text-secondary mt-1">Tự động ưu tiên Nấm xanh Metarhizium và vi khuẩn Bt trước khi đề xuất thuốc bảo vệ thực vật hóa học.</p>
+</div>
+</div>
+<!-- Mini Card 3: Cloud Sync -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined">sync_saved_locally</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Đồng bộ Thời Gian Thực</span>
+<p class="font-caption text-caption text-secondary mt-1">Tọa độ GPS và hình ảnh đã được mã hóa theo tiêu chuẩn an toàn dữ liệu nông nghiệp ISO/IEC AI 42001.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
