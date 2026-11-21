@@ -1,8 +1,6 @@
 (function () {
     "use strict";
-    const state = { file: null, analysis: null, chatThreadId: null };
-    const $ = (selector) => document.querySelector(selector);
-    const setText = (selector, value) => { const element = $(selector); if (element) element.textContent = value; };
+    const state = { file: null, analysis: null, chatThreadId: null, historyItems: [] };
     const pestDisplayNames = {
         rice_leaf_roller: "Sâu cuốn lá nhỏ",
         brown_planthopper: "Rầy nâu",
@@ -10,10 +8,261 @@
         asiatic_rice_borer: "Sâu đục thân 5 vạch",
         rice_leaf_caterpillar: "Sâu cuốn lá lớn",
         rice_shell_pest: "Sâu phao",
-        rice_gall_midge: "Muỗi hành (Sâu năng)",
-        grain_spreader_thrips: "Bọ trĩ (Bù lạch)",
+        rice_gall_midge: "Muỗi hành",
+        grain_spreader_thrips: "Bọ trĩ",
         rice_stem_maggot: "Nhện gié hại lúa",
     };
+    const $ = (selector) => document.querySelector(selector);
+    const setText = (selector, value) => { const element = $(selector); if (element) element.textContent = value; };
+    const authHeaders = () => {
+        const token = localStorage.getItem("auth_token");
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
+    function showWelcomeModal(open = true) {
+        const modal = $("#welcome-modal");
+        if (!modal) return;
+        modal.classList.toggle("hidden", !open);
+        modal.classList.toggle("flex", open);
+        if (open) initializeWelcomeGoogleButton();
+    }
+
+    function showMemberGate(open = true) {
+        const modal = $("#member-gate-modal");
+        if (!modal) return;
+        modal.classList.toggle("hidden", !open);
+        modal.classList.toggle("flex", open);
+    }
+
+    function initializeWelcomeGoogleButton(attempt = 0) {
+        const container = $("#welcome-google-button");
+        if (!container || container.dataset.ready === "true") return;
+        if (!window.google?.accounts?.id) {
+            if (attempt < 20) window.setTimeout(() => initializeWelcomeGoogleButton(attempt + 1), 250);
+            return;
+        }
+        window.google.accounts.id.renderButton(container, {
+            type: "standard",
+            theme: "filled_blue",
+            size: "large",
+            text: "continue_with",
+            width: Math.min(360, Math.max(240, container.parentElement?.clientWidth || 320)),
+            callback: window.handleGoogleLogin,
+        });
+        container.dataset.ready = "true";
+    }
+
+    function renderAuthenticatedUser(user) {
+        const authContainer = $("#google-auth-container");
+        const profileContainer = $("#user-profile-container");
+        const avatar = $("#user-avatar");
+        if (!authContainer || !profileContainer || !user) return;
+        authContainer.classList.add("hidden");
+        profileContainer.classList.remove("hidden");
+        profileContainer.classList.add("flex");
+        setText("#user-name", user.ho_ten || user.ten_dang_nhap || user.email || "Người dùng");
+        if (avatar && user.anh_dai_dien) {
+            avatar.src = user.anh_dai_dien;
+            avatar.classList.remove("hidden");
+        } else {
+            avatar?.classList.add("hidden");
+        }
+    }
+
+    function clearAuthenticatedUser() {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+        sessionStorage.removeItem("guest_mode");
+        $("#user-profile-container")?.classList.add("hidden");
+        $("#user-profile-container")?.classList.remove("flex");
+        $("#google-auth-container")?.classList.remove("hidden");
+        showWelcomeModal(true);
+    }
+
+    function filterHistoryRows() {
+        const query = ($("#history-search")?.value || "").trim().toLowerCase();
+        if (!query) {
+            renderHistoryRows(state.historyItems);
+            return;
+        }
+        renderHistoryRows(state.historyItems.filter((item) => {
+            const ai = item.ket_qua_ai || {};
+            const first = (ai["danh_sách_đối_tượng"] || [])[0] || {};
+            const searchable = [
+                item.ma_phien,
+                first.ten_tieng_viet,
+                first.ten_sau_hai,
+                first.ma_lop_yolo,
+            ].filter(Boolean).join(" ").toLowerCase();
+            return searchable.includes(query);
+        }));
+    }
+
+    function historyImageUrl(path) {
+        if (!path) return "";
+        const external = safeHttpUrl(path);
+        if (external) return external;
+        const normalized = String(path).replace(/^\/+/, "");
+        const staticPath = normalized.replace(/^(?:Code\/)?static\//, "");
+        return `/static/${staticPath}`;
+    }
+
+    function showHistoryEmptyState(empty) {
+        $("#history-empty-state")?.classList.toggle("hidden", !empty);
+        $("#history-table-container")?.classList.toggle("hidden", empty);
+    }
+
+    function renderHistoryRows(items) {
+        const body = $("#history-table-body");
+        if (!body) return;
+        const count = $("#history-count");
+        if (count) count.textContent = `${items.length} ca đã lưu`;
+        if (!items.length) {
+            showHistoryEmptyState(true);
+            return;
+        }
+        showHistoryEmptyState(false);
+
+        body.innerHTML = items.map((item, index) => {
+            const ai = item.ket_qua_ai || {};
+            const objects = ai["danh_sách_đối_tượng"] || [];
+            const first = objects[0] || {};
+            const pestCode = first.ma_lop_yolo || "";
+            const pest = escapeHtml(pestDisplayNames[pestCode] || first.ten_tieng_viet || first.ten_sau_hai || pestCode || "Chưa xác định");
+            const rawConfidence = item.confidence ?? first["độ_tin_cậy"] ?? first.do_tin_cay ?? first.confidence;
+            const confidence = Number(rawConfidence);
+            const percentage = Number.isFinite(confidence) ? (confidence <= 1 ? confidence * 100 : confidence) : null;
+            const confidenceText = percentage != null ? `${percentage.toFixed(1)}%` : "Chưa có";
+            const confidenceStyle = percentage == null
+                ? "bg-slate-100 text-slate-600"
+                : percentage >= 80 ? "bg-emerald-50 text-emerald-700" : percentage >= 50 ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700";
+            const confidenceLabel = percentage == null ? "Chưa có dữ liệu" : percentage >= 80 ? "Tin cậy cao" : percentage >= 50 ? "Trung bình" : "Tin cậy thấp";
+            const date = item.ngay_tao ? new Date(item.ngay_tao).toLocaleString("vi-VN") : "-";
+            const weather = item.nhiet_do != null || item.do_am != null
+                ? `<div class="mt-1 text-xs text-slate-400">${item.nhiet_do != null ? `${escapeHtml(item.nhiet_do)}°C` : ""}${item.nhiet_do != null && item.do_am != null ? " · " : ""}${item.do_am != null ? `${escapeHtml(item.do_am)}% ẩm` : ""}</div>`
+                : "";
+            const imageUrl = historyImageUrl(item.duong_dan_anh_ket_qua || item.duong_dan_anh_goc);
+            const hasDss = Boolean(item.ket_qua_dss);
+            const action = hasDss
+                ? `<button type="button" onclick="window.openHistorySession(${Number(item.ma_phien)}, 'view')" class="rounded-lg bg-primary px-2.5 py-1.5 text-xs font-bold text-white hover:bg-primary-dark">👁️ Xem kết quả</button>`
+                : `<button type="button" onclick="window.openHistorySession(${Number(item.ma_phien)}, 'dss')" class="rounded-lg border border-primary px-2.5 py-1.5 text-xs font-bold text-primary hover:bg-emerald-50">⚡ Chạy DSS</button>`;
+            return `<tr class="transition-colors hover:bg-emerald-50/40">
+                <td class="px-5 py-4 align-top">
+                    ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="Ảnh phiên quét ${escapeHtml(item.ma_phien)}" class="h-[60px] w-[60px] rounded-xl object-cover ring-1 ring-slate-200" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'grid h-[60px] w-[60px] place-items-center rounded-xl bg-slate-100 text-slate-400', innerHTML:'<span class=&quot;material-symbols-outlined&quot;>image_not_supported</span>'}))">` : '<div class="grid h-[60px] w-[60px] place-items-center rounded-xl bg-slate-100 text-slate-400"><span class="material-symbols-outlined">image</span></div>'}
+                </td>
+                <td class="px-5 py-4 align-top"><span class="font-mono text-xs font-semibold text-slate-500">#${escapeHtml(item.ma_phien || index + 1)}</span></td>
+                <td class="px-5 py-4 align-top"><span class="font-semibold text-slate-800">${pest}</span>${weather}</td>
+                <td class="px-5 py-4 align-top"><span class="inline-flex flex-col items-start gap-0.5 rounded-full px-2.5 py-1 text-xs font-bold ${confidenceStyle}"><span>${confidenceText}</span><span class="text-[10px] font-medium">${confidenceLabel}</span></span></td>
+                <td class="px-5 py-4 align-top"><div class="flex flex-wrap gap-2">${action}<button type="button" onclick="window.deleteHistorySession(${Number(item.ma_phien)})" class="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">🗑️ Xóa</button></div></td>
+                <td class="px-5 py-4 align-top text-slate-500">${escapeHtml(date)}</td>
+            </tr>`;
+        }).join("");
+    }
+
+    window.deleteHistorySession = async function (sessionId) {
+        if (!window.confirm("Bác có chắc muốn xóa phiên quét này không?")) return;
+        try {
+            const response = await fetch(`/api/history/${sessionId}`, { method: "DELETE", headers: authHeaders() });
+            if (response.status === 401) return clearAuthenticatedUser();
+            if (!response.ok) throw new Error(await readError(response));
+            state.historyItems = state.historyItems.filter((item) => Number(item.ma_phien) !== Number(sessionId));
+            filterHistoryRows();
+        } catch (error) {
+            window.alert(`Không thể xóa phiên quét: ${error.message}`);
+        }
+    };
+
+    window.openHistorySession = function (sessionId, action) {
+        localStorage.setItem("pending_history_session", JSON.stringify({ sessionId, action }));
+        window.location.href = "/";
+    };
+
+    async function loadHistory() {
+        if (window.location.pathname !== "/history") return;
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+        const body = $("#history-table-body");
+        if (body) {
+            showHistoryEmptyState(false);
+            body.innerHTML = '<tr><td colspan="6" class="px-5 py-14 text-center text-slate-500">Đang tải nhật ký...</td></tr>';
+        }
+        try {
+            const response = await fetch("/api/history", { headers: authHeaders() });
+            if (response.status === 401) {
+                clearAuthenticatedUser();
+                return;
+            }
+            if (!response.ok) throw new Error(await readError(response));
+            const payload = await response.json();
+            state.historyItems = payload.data || [];
+            filterHistoryRows();
+        } catch (error) {
+            if (body) body.innerHTML = `<tr><td colspan="6" class="px-5 py-14 text-center text-red-600">${escapeHtml(error.message)}</td></tr>`;
+        }
+    }
+
+    async function restoreHistorySession() {
+        if (window.location.pathname !== "/") return;
+        const pending = localStorage.getItem("pending_history_session");
+        if (!pending || !localStorage.getItem("auth_token")) return;
+        localStorage.removeItem("pending_history_session");
+        try {
+            const request = JSON.parse(pending);
+            const response = await fetch("/api/history", { headers: authHeaders() });
+            if (!response.ok) throw new Error(await readError(response));
+            const item = (await response.json()).data.find((entry) => Number(entry.ma_phien) === Number(request.sessionId));
+            if (!item) throw new Error("Không tìm thấy phiên quét này.");
+            renderAnalysis({
+                data: {
+                    ma_phien: item.ma_phien,
+                    ket_qua_ai: item.ket_qua_ai || {},
+                    ket_qua_dss: item.ket_qua_dss,
+                    giai_phap_co_ban: [],
+                    thong_tin_sau_hai: [],
+                },
+            });
+            if (item.ket_qua_dss) {
+                state.analysis.dss = item.ket_qua_dss;
+                renderAHP(item.ket_qua_dss.ahp?.xep_hang || []);
+                renderKNN(item.ket_qua_dss.knn || []);
+                $("#dss-results")?.classList.remove("hidden");
+                $("#dss-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+                $("#pairwise-ahp-panel")?.classList.remove("hidden");
+                $("#pairwise-ahp-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        } catch (error) {
+            window.alert(`Không thể mở phiên quét: ${error.message}`);
+        }
+    }
+
+    async function handleGoogleLogin(response) {
+        if (!response?.credential) {
+            showError(new Error("Google không trả về thông tin xác thực."), "#auth-status");
+            return;
+        }
+        try {
+            const result = await fetch("/api/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ credential: response.credential }),
+            });
+            if (!result.ok) throw new Error(await readError(result));
+            const payload = await result.json();
+            const data = payload.data;
+            localStorage.setItem("auth_token", data.access_token);
+            localStorage.setItem("auth_user", JSON.stringify(data.user));
+            sessionStorage.removeItem("guest_mode");
+            renderAuthenticatedUser(data.user);
+            showWelcomeModal(false);
+            showMemberGate(false);
+            window.location.reload();
+        } catch (error) {
+            showError(error, "#welcome-auth-status");
+            showError(error, "#auth-status");
+        }
+    }
+    window.handleGoogleLogin = handleGoogleLogin;
     const pestSummaries = {
         rice_leaf_roller: {
             info: "Sâu non cuốn lá và ăn phần xanh của lá lúa, làm giảm quang hợp.",
@@ -102,6 +351,97 @@
         } catch {
             return "";
         }
+    }
+
+    const dictionaryState = { items: [] };
+
+    function renderDictionary(items) {
+            const grid = $("#dictionary-grid");
+            const status = $("#dictionary-status");
+            if (!grid || !status) return;
+            if (!items.length) {
+                grid.innerHTML = "";
+                status.classList.remove("hidden");
+                status.textContent = dictionaryState.items.length
+                    ? "Không tìm thấy loài sâu phù hợp."
+                    : "Cơ sở dữ liệu chưa có thông tin từ điển.";
+                return;
+            }
+            status.classList.add("hidden");
+            grid.innerHTML = items.map((item) => {
+                const imageUrl = safeHttpUrl(item.image_url) || (String(item.image_url || "").startsWith("/") ? item.image_url : "");
+                const image = imageUrl
+                    ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.ten_tieng_viet)}" class="h-full w-full object-cover" loading="lazy">`
+                    : `<div class="flex h-full flex-col items-center justify-center bg-gradient-to-br from-emerald-100 via-teal-50 to-slate-100 text-emerald-700">
+                        <svg aria-hidden="true" class="h-14 w-14" viewBox="0 0 64 64" fill="none">
+                            <path d="M17 43c8-16 20-24 35-25-2 15-10 27-27 29" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M18 45c7-8 14-13 22-17" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="45" cy="18" r="7" stroke="currentColor" stroke-width="3"/>
+                            <path d="m50 23 7 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                        <span class="mt-2 text-xs font-semibold">Đang cập nhật ảnh thực tế</span>
+                    </div>`;
+                const description = [item.dac_diem_hinh_thai, item.cach_thuc_gay_hai].filter(Boolean).join(" ");
+                return `<article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    <div class="relative aspect-video overflow-hidden">${image}<span class="absolute right-3 top-3 rounded-full bg-slate-900/75 px-2.5 py-1 font-mono text-[11px] font-semibold text-white">${escapeHtml(item.ma_lop_yolo || "-")}</span></div>
+                    <div class="flex flex-1 flex-col p-5">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">${escapeHtml(item.ten_tieng_viet || "Chưa cập nhật")}</h2>
+                            <p class="mt-1 text-xs italic text-slate-500">${escapeHtml(item.ten_khoa_hoc || "Chưa cập nhật tên khoa học")}</p>
+                        </div>
+                        <p class="mt-4 line-clamp-2 min-h-[3rem] text-sm leading-6 text-slate-600">${escapeHtml(description || "Chưa có mô tả trong cơ sở dữ liệu.")}</p>
+                        <button type="button" class="mt-auto pt-5 text-left text-sm font-bold text-primary transition hover:text-primary-dark" onclick="window.openDictionaryDetail(${Number(item.ma_sau_hai)})">📖 Xem chi tiết &amp; Phác đồ ➔</button>
+                    </div>
+                </article>`;
+        }).join("");
+    }
+
+    async function loadDictionary() {
+            const status = $("#dictionary-status");
+            if (!status) return;
+            try {
+                const response = await fetch("/api/dictionary");
+                if (!response.ok) throw new Error(await readError(response));
+                const payload = await response.json();
+                dictionaryState.items = payload.data || [];
+                renderDictionary(dictionaryState.items);
+            } catch (error) {
+                status.classList.remove("hidden");
+                status.className = "mt-8 rounded-2xl border border-red-200 bg-red-50 px-6 py-12 text-center text-sm text-red-700";
+                status.textContent = `Không thể tải từ điển: ${error.message}`;
+            }
+        }
+
+    window.openDictionaryDetail = function (id) {
+            const item = dictionaryState.items.find((entry) => Number(entry.ma_sau_hai) === Number(id));
+            if (!item) return;
+            const modal = $("#dictionary-detail-modal");
+            const title = $("#dictionary-detail-title");
+            const content = $("#dictionary-detail-content");
+            if (!modal || !title || !content) return;
+            title.textContent = item.ten_tieng_viet || "Chi tiết phác đồ";
+            const imageUrl = safeHttpUrl(item.image_url) || (String(item.image_url || "").startsWith("/") ? item.image_url : "");
+            const imageUrls = (Array.isArray(item.image_urls) ? item.image_urls : [imageUrl])
+                .map((value) => safeHttpUrl(value) || (String(value || "").startsWith("/") ? value : ""))
+                .filter(Boolean);
+            const image = imageUrls.length
+                ? `<div class="grid gap-3 sm:grid-cols-2">${imageUrls.map((url) => `<img src="${escapeHtml(url)}" alt="${escapeHtml(item.ten_tieng_viet)}" class="aspect-video w-full rounded-xl object-cover" loading="lazy">`).join("")}</div>`
+                : `<div class="flex h-full flex-col items-center justify-center bg-gradient-to-br from-emerald-100 via-teal-50 to-slate-100 text-emerald-700"><span class="material-symbols-outlined text-5xl">eco</span><span class="mt-2 text-xs font-semibold">Đang cập nhật ảnh thực tế</span></div>`;
+            const solutions = (item.giai_phap_ipm || []).length
+                ? item.giai_phap_ipm.map((solution) => `<section class="rounded-xl bg-emerald-50 p-4"><h3 class="font-bold text-emerald-900">${escapeHtml(solution.ten_giai_phap)}</h3><p class="mt-2">${escapeHtml(solution.mo_ta || "Chưa có mô tả trong cơ sở dữ liệu.")}</p></section>`).join("")
+                : '<p>Chưa có giải pháp IPM liên kết trong cơ sở dữ liệu.</p>';
+            content.innerHTML = `<div class="relative aspect-video overflow-hidden rounded-xl">${image}</div>
+                <p class="mt-3 text-xs italic text-slate-500">${escapeHtml(item.ten_khoa_hoc || "Chưa cập nhật tên khoa học")} · <span class="font-mono">${escapeHtml(item.ma_lop_yolo || "-")}</span></p>
+                <section class="mt-4 space-y-3"><div><h3 class="font-bold text-slate-800">Đặc điểm hình thái</h3><p class="mt-1">${escapeHtml(item.dac_diem_hinh_thai || "Chưa có dữ liệu.")}</p></div><div><h3 class="font-bold text-slate-800">Cách thức gây hại</h3><p class="mt-1">${escapeHtml(item.cach_thuc_gay_hai || "Chưa có dữ liệu.")}</p></div></section>
+                <section class="mt-5"><h3 class="mb-3 flex items-center gap-2 font-bold text-emerald-800">🛡️ Phác đồ IPM ưu tiên</h3><div class="space-y-3">${solutions}</div></section>`;
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+    };
+
+    function closeDictionaryDetail() {
+            const modal = $("#dictionary-detail-modal");
+            modal?.classList.add("hidden");
+            modal?.classList.remove("flex");
     }
 
     function renderCitation(item) {
@@ -320,7 +660,7 @@
         try {
             const response = await fetch("/api/ahp", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeaders() },
                 body: JSON.stringify({ comparisons, ma_lop_yolo: maLopYolo }),
             });
             if (!response.ok) {
@@ -446,48 +786,10 @@
         try {
             const formData = new FormData();
             formData.append("image", state.file);
-            const response = await fetch("/api/analyze", { method: "POST", body: formData });
+            const response = await fetch("/api/analyze", { method: "POST", headers: authHeaders(), body: formData });
             if (!response.ok) throw new Error(await readError(response));
             renderAnalysis(await response.json());
         } catch (error) { showError(error, "#analyze-status"); button.disabled = false; }
-    }
-
-    async function runDSS(event) {
-        event.preventDefault();
-        const first = state.analysis?.ai?.["danh_sách_đối_tượng"]?.[0];
-        if (!first?.ma_lop_yolo) {
-            showError(new Error("Chưa có kết quả nhận diện để chạy DSS."), "#dss-status");
-            return;
-        }
-        const status = $("#dss-status");
-        status.classList.remove("hidden", "text-red-600");
-        status.classList.add("text-slate-500");
-        setText("#dss-status", "Đang chạy AHP và KNN...");
-        try {
-            const response = await fetch("/api/dss", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ma_phien: state.analysis.ma_phien,
-                    ma_lop_yolo: first.ma_lop_yolo,
-                    mat_do: Number($("#density-input").value),
-                    nhiet_do: Number($("#dss-temperature-input").value),
-                    do_am: Number($("#dss-humidity-input").value),
-                }),
-            });
-            if (!response.ok) throw new Error(await readError(response));
-            const payload = await response.json();
-            const dss = payload.data || {};
-            renderAHP(dss.ahp?.xep_hang || []);
-            renderKNN(dss.knn || []);
-            $("#dss-results").classList.remove("hidden");
-            toggleModal("dss-modal", false);
-            $("#dss-results").scrollIntoView({ behavior: "smooth", block: "start" });
-        } catch (error) {
-            showError(error, "#dss-status");
-        } finally {
-            if (!status.classList.contains("text-red-600")) setText("#dss-status", "");
-        }
     }
 
     function appendMessage(text, role) {
@@ -563,6 +865,33 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        const savedUser = localStorage.getItem("auth_user");
+        if (localStorage.getItem("auth_token") && savedUser) {
+            try { renderAuthenticatedUser(JSON.parse(savedUser)); } catch { clearAuthenticatedUser(); }
+        }
+        $("#logout-button")?.addEventListener("click", clearAuthenticatedUser);
+        const isAuthenticated = Boolean(localStorage.getItem("auth_token"));
+        if (!isAuthenticated && sessionStorage.getItem("guest_mode") !== "true") {
+            showWelcomeModal(true);
+        }
+        $("#guest-mode-button")?.addEventListener("click", () => {
+            sessionStorage.setItem("guest_mode", "true");
+            showWelcomeModal(false);
+        });
+        $("#member-login-button")?.addEventListener("click", () => {
+            showMemberGate(false);
+            showWelcomeModal(true);
+        });
+        $("#member-gate-close-button")?.addEventListener("click", () => showMemberGate(false));
+        document.querySelectorAll('a[href="/history"]').forEach((link) => {
+            link.addEventListener("click", (event) => {
+                if (!localStorage.getItem("auth_token")) {
+                    event.preventDefault();
+                    showMemberGate(true);
+                }
+            });
+        });
+        initializeWelcomeGoogleButton();
         if (window.location.pathname === "/history" || window.location.pathname === "/dictionary") {
             toggleChat(false);
         }
@@ -583,7 +912,6 @@
             panel?.classList.remove("hidden");
             panel?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
-        $("#dss-form")?.addEventListener("submit", runDSS);
         for (let index = 0; index < 6; index += 1) {
             $(`#ahp-slider-${index}`)?.addEventListener("input", () => updateAHPValue(index));
             updateAHPValue(index);
@@ -591,6 +919,30 @@
         $("#pairwise-ahp-form")?.addEventListener("submit", runPairwiseAHP);
         $("#weather-edit-button")?.addEventListener("click", () => $("#weather-edit-fields")?.classList.toggle("hidden"));
         initializeWeather();
+        loadHistory();
+        restoreHistorySession();
+        if (window.location.pathname === "/dictionary") {
+            loadDictionary();
+            $("#dictionary-search")?.addEventListener("input", (event) => {
+                const query = event.target.value.trim().toLowerCase();
+                renderDictionary(dictionaryState.items.filter((item) => [
+                    item.ten_tieng_viet,
+                    item.ten_khoa_hoc,
+                    item.ma_lop_yolo,
+                    ...(item.giai_phap_ipm || []).map((solution) => solution.ten_giai_phap),
+                ].filter(Boolean).join(" ").toLowerCase().includes(query)));
+            });
+            $("#dictionary-detail-close")?.addEventListener("click", closeDictionaryDetail);
+            $("#dictionary-detail-modal")?.addEventListener("click", (event) => {
+                if (event.target.id === "dictionary-detail-modal") closeDictionaryDetail();
+            });
+        }
+        $("#history-search")?.addEventListener("input", filterHistoryRows);
+        $("#history-reload-button")?.addEventListener("click", loadHistory);
+        window.addEventListener("pageshow", loadHistory);
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") loadHistory();
+        });
         document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", () => toggleModal(button.dataset.closeModal, false)));
     });
 }());

@@ -6,21 +6,16 @@ USE `nhandien_sauhai_db`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `OTP_Verification`;
-DROP TABLE IF EXISTS `tinnhanchat`;
-DROP TABLE IF EXISTS `ketquadss`;
-DROP TABLE IF EXISTS `ketquanhandien`;
-DROP TABLE IF EXISTS `sosanhcapahp`;
-DROP TABLE IF EXISTS `trongsoahp`;
-DROP TABLE IF EXISTS `lichsucanhtac`;
-DROP TABLE IF EXISTS `phienphantich`;
-DROP TABLE IF EXISTS `sauhai_giaiphap`;
-DROP TABLE IF EXISTS `luongchat`;
-DROP TABLE IF EXISTS `cauhinhahp`;
-DROP TABLE IF EXISTS `giaiphapsinhhoc`;
-DROP TABLE IF EXISTS `sauhai`;
-DROP TABLE IF EXISTS `nguoidung`;
-DROP TABLE IF EXISTS `tieuchiahp`;
+DROP TABLE IF EXISTS `TinNhanChat`;
+DROP TABLE IF EXISTS `ahp_history`;
+DROP TABLE IF EXISTS `PhienPhanTich`;
+DROP TABLE IF EXISTS `LuongChat`;
+DROP TABLE IF EXISTS `SauHai_GiaiPhap`;
+DROP TABLE IF EXISTS `LichSuCanhTac`;
+DROP TABLE IF EXISTS `CauHinhDSS`;
+DROP TABLE IF EXISTS `GiaiPhapSinhHoc`;
+DROP TABLE IF EXISTS `SauHai`;
+DROP TABLE IF EXISTS `NguoiDung`;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -28,6 +23,9 @@ CREATE TABLE `NguoiDung` (
   `MaNguoiDung` INT NOT NULL AUTO_INCREMENT,
   `TenDangNhap` VARCHAR(100) NOT NULL,
   `Email` VARCHAR(255) NOT NULL,
+  `HoTen` VARCHAR(200) DEFAULT NULL,
+  `GoogleId` VARCHAR(255) DEFAULT NULL,
+  `AnhDaiDien` VARCHAR(1000) DEFAULT NULL,
   `MatKhauHash` VARCHAR(255) NOT NULL,
   `VaiTro` ENUM('Admin', 'Farmer', 'User') NOT NULL DEFAULT 'Farmer',
   `IsVerified` TINYINT(1) NOT NULL DEFAULT 0,
@@ -35,19 +33,19 @@ CREATE TABLE `NguoiDung` (
   PRIMARY KEY (`MaNguoiDung`),
   UNIQUE KEY `uq_nguoidung_tendangnhap` (`TenDangNhap`),
   UNIQUE KEY `uq_nguoidung_email` (`Email`)
+  ,UNIQUE KEY `uq_nguoidung_google_id` (`GoogleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `OTP_Verification` (
-  `Id` INT NOT NULL AUTO_INCREMENT,
-  `MaNguoiDung` INT NOT NULL,
-  `MaOTP` VARCHAR(255) NOT NULL,
-  `HetHanLuc` DATETIME NOT NULL,
-  `DaSuDung` TINYINT(1) NOT NULL DEFAULT 0,
-  `NgayTao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Id`),
-  KEY `idx_otp_user_created` (`MaNguoiDung`, `NgayTao`),
-  CONSTRAINT `fk_otp_nguoidung`
-    FOREIGN KEY (`MaNguoiDung`) REFERENCES `NguoiDung` (`MaNguoiDung`)
+CREATE TABLE `ahp_history` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `result_matrix` JSON NOT NULL,
+  `cr_value` FLOAT NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_ahp_history_user_created` (`user_id`, `created_at`),
+  CONSTRAINT `fk_ahp_history_user`
+    FOREIGN KEY (`user_id`) REFERENCES `NguoiDung` (`MaNguoiDung`)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

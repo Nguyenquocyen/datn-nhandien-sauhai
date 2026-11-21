@@ -6,9 +6,6 @@ cryptography
 bcrypt==4.0.1
 passlib[bcrypt]
 python-jose[cryptography]
-fastapi-mail
-email-validator
-dnspython
 python-multipart
 jinja2
 pydantic
@@ -21,4 +18,5 @@ torch
 scikit-learn
 python-dotenv
 google-generativeai
+google-auth
 pytest

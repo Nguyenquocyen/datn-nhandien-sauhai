@@ -1,43 +1,26 @@
-"""API đăng ký, xác thực OTP và đăng nhập bằng JWT."""
+"""API đăng nhập Google và phát JWT nội bộ."""
 
 from __future__ import annotations
 
-import secrets
-from datetime import datetime, timedelta
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from sqlalchemy import or_, select
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..mail_config import send_otp_email
-from ..models import NguoiDung, OTPVerification, VaiTroNguoiDung
-from ..security import create_access_token, hash_password, verify_password
+from ..models import NguoiDung, VaiTroNguoiDung
+from ..security import create_access_token, hash_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-class RegisterRequest(BaseModel):
-    """Email/mật khẩu là bắt buộc; username cũ vẫn được hỗ trợ tùy chọn."""
-
-    email: EmailStr
-    mat_khau: str = Field(min_length=8, max_length=128)
-    ten_dang_nhap: str | None = Field(default=None, min_length=3, max_length=100)
-
-
-class VerifyOTPRequest(BaseModel):
-    email: EmailStr
-    otp: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
-
-
-class LoginRequest(BaseModel):
-    """Đăng nhập bằng email hoặc tên đăng nhập."""
-
-    email: EmailStr | None = None
-    ten_dang_nhap: str | None = Field(default=None, min_length=1, max_length=100)
-    mat_khau: str = Field(min_length=1, max_length=128)
+class GoogleLoginRequest(BaseModel):
+    credential: str = Field(min_length=1, max_length=8192)
 
 
 class UserResponse(BaseModel):
@@ -45,120 +28,97 @@ class UserResponse(BaseModel):
 
     ma_nguoi_dung: int
     ten_dang_nhap: str
-    email: EmailStr
+    email: str
     vai_tro: VaiTroNguoiDung
     is_verified: bool
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(
-    payload: RegisterRequest,
+@router.post("/google")
+def google_login(
+    payload: GoogleLoginRequest,
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
-    email = str(payload.email).strip().lower()
-    username = (payload.ten_dang_nhap or email.split("@", 1)[0]).strip()
-    if not username:
-        raise HTTPException(status_code=422, detail="Tên đăng nhập không được để trống.")
-
-    existing = db.scalar(
-        select(NguoiDung).where(
-            or_(NguoiDung.TenDangNhap == username, NguoiDung.Email == email)
-        )
+    """Xác thực Google ID token rồi phát JWT nội bộ của ứng dụng."""
+    client_id = os.getenv(
+        "GOOGLE_CLIENT_ID",
+        "208794080286-qiiivi2nv892q9sj9pr5d64oj5ipdphc.apps.googleusercontent.com",
     )
-    if existing is not None:
-        raise HTTPException(status_code=409, detail="Tên đăng nhập hoặc email đã được sử dụng.")
-
-    user = NguoiDung(
-        TenDangNhap=username,
-        Email=email,
-        MatKhauHash=hash_password(payload.mat_khau),
-        VaiTro=VaiTroNguoiDung.FARMER,
-        IsVerified=False,
-    )
-    otp = f"{secrets.randbelow(1_000_000):06d}"
-    otp_record = OTPVerification(
-        nguoi_dung=user,
-        MaOTP=hash_password(otp),
-        HetHanLuc=datetime.utcnow() + timedelta(minutes=5),
-        DaSuDung=False,
-    )
-    db.add_all([user, otp_record])
     try:
-        db.flush()
-        await send_otp_email(email, otp)
+        claims = id_token.verify_oauth2_token(
+            payload.credential,
+            google_requests.Request(),
+            client_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Google ID token không hợp lệ hoặc đã hết hạn.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+
+    google_id = str(claims.get("sub", "")).strip()
+    email = str(claims.get("email", "")).strip().lower()
+    if not google_id or not email or claims.get("email_verified") is not True:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Tài khoản Google chưa cung cấp email đã xác minh.",
+        )
+
+    user = db.scalar(select(NguoiDung).where(NguoiDung.GoogleId == google_id))
+    if user is None:
+        user = db.scalar(select(NguoiDung).where(NguoiDung.Email == email))
+        if user is not None and user.GoogleId not in (None, google_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email này đã được liên kết với một tài khoản Google khác.",
+            )
+
+    full_name = str(claims.get("name") or email.split("@", 1)[0]).strip()
+    picture = str(claims.get("picture") or "").strip() or None
+    if user is None:
+        username_base = "".join(
+            character if character.isalnum() else "_"
+            for character in email.split("@", 1)[0]
+        ).strip("_")[:90] or "google_user"
+        username = username_base
+        suffix = 1
+        while db.scalar(select(NguoiDung).where(NguoiDung.TenDangNhap == username)):
+            username = f"{username_base[:(99 - len(str(suffix)))]}_{suffix}"
+            suffix += 1
+        user = NguoiDung(
+            TenDangNhap=username,
+            Email=email,
+            HoTen=full_name,
+            GoogleId=google_id,
+            AnhDaiDien=picture,
+            MatKhauHash=hash_password(secrets.token_urlsafe(32)),
+            VaiTro=VaiTroNguoiDung.FARMER,
+            IsVerified=True,
+        )
+        db.add(user)
+    else:
+        user.GoogleId = google_id
+        user.HoTen = full_name
+        user.AnhDaiDien = picture or user.AnhDaiDien
+        user.IsVerified = True
+        if not user.TenDangNhap:
+            user.TenDangNhap = full_name
+
+    try:
         db.commit()
         db.refresh(user)
-    except RuntimeError as exc:
-        db.rollback()
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except Exception as exc:
+    except IntegrityError as exc:
         db.rollback()
         raise HTTPException(
-            status_code=503,
-            detail="Không thể gửi email OTP. Vui lòng kiểm tra cấu hình SMTP.",
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Không thể liên kết tài khoản Google với dữ liệu hiện tại.",
         ) from exc
 
     return {
         "status": "ok",
-        "message": "Đăng ký thành công. Mã OTP đã được gửi qua email.",
-        "data": {"user": _serialize_user(user)},
-    }
-
-
-@router.post("/verify-otp")
-def verify_otp(
-    payload: VerifyOTPRequest,
-    db: Session = Depends(get_db),
-) -> dict[str, object]:
-    email = str(payload.email).strip().lower()
-    user = db.scalar(select(NguoiDung).where(NguoiDung.Email == email))
-    if user is None:
-        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản.")
-
-    otp_record = db.scalar(
-        select(OTPVerification)
-        .where(
-            OTPVerification.MaNguoiDung == user.MaNguoiDung,
-            OTPVerification.DaSuDung.is_(False),
-        )
-        .order_by(OTPVerification.NgayTao.desc())
-    )
-    if (
-        otp_record is None
-        or otp_record.HetHanLuc < datetime.utcnow()
-        or not verify_password(payload.otp, otp_record.MaOTP)
-    ):
-        raise HTTPException(status_code=400, detail="OTP không đúng hoặc đã hết hạn.")
-
-    user.IsVerified = True
-    otp_record.DaSuDung = True
-    db.commit()
-    return {"status": "ok", "message": "Xác thực email thành công."}
-
-
-@router.post("/login")
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> dict[str, object]:
-    identifier = (str(payload.email).strip().lower() if payload.email else "").strip()
-    identifier = identifier or (payload.ten_dang_nhap or "").strip()
-    user = db.scalar(
-        select(NguoiDung).where(
-            or_(NguoiDung.Email == identifier, NguoiDung.TenDangNhap == identifier)
-        )
-    )
-    if user is None or not verify_password(payload.mat_khau, user.MatKhauHash):
-        raise HTTPException(
-            status_code=401,
-            detail="Email/tên đăng nhập hoặc mật khẩu không đúng.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    if not user.IsVerified:
-        raise HTTPException(status_code=403, detail="Tài khoản chưa xác thực OTP.")
-
-    return {
-        "status": "ok",
-        "message": "Đăng nhập thành công",
+        "message": "Đăng nhập Google thành công.",
         "data": {
-            "access_token": create_access_token(user),
+            "access_token": create_access_token(user, expires_minutes=7 * 24 * 60),
             "token_type": "bearer",
             "user": _serialize_user(user),
         },
@@ -170,6 +130,9 @@ def _serialize_user(user: NguoiDung) -> dict[str, object]:
         "ma_nguoi_dung": user.MaNguoiDung,
         "ten_dang_nhap": user.TenDangNhap,
         "email": user.Email,
+        "ho_ten": user.HoTen or user.TenDangNhap,
+        "anh_dai_dien": user.AnhDaiDien,
+        "google_id": user.GoogleId,
         "vai_tro": user.VaiTro.value,
         "is_verified": user.IsVerified,
     }

@@ -92,6 +92,7 @@ def run_pairwise_ahp(
 def run_dss(
     payload: DSSRequest,
     db: Session = Depends(get_db),
+    current_user: NguoiDung | None = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Chạy DSS sau khi người dùng đánh giá mật độ ngoài ruộng."""
     ai_result = {
@@ -124,7 +125,11 @@ def run_dss(
     dss_result = {"ahp": ahp_result, "knn": knn_result}
     if payload.ma_phien:
         session = db.get(PhienPhanTich, payload.ma_phien)
-        if session is not None:
+        if (
+            session is not None
+            and current_user is not None
+            and session.MaNguoiDung == current_user.MaNguoiDung
+        ):
             session.KetQuaDSS_JSON = dss_result
             db.commit()
     return {"status": "ok", "message": "Đã chạy Hệ Chuyên gia AHP & KNN.", "data": dss_result}

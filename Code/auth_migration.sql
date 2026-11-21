@@ -1,21 +1,13 @@
--- Chạy một lần trên database hiện tại trước khi bật Auth mới.
+-- Migration auth Google-only. Chạy một lần trên database hiện tại.
 ALTER TABLE `NguoiDung`
   MODIFY COLUMN `VaiTro` ENUM('Admin', 'Farmer', 'User') NOT NULL DEFAULT 'Farmer',
-  ADD COLUMN `IsVerified` TINYINT(1) NOT NULL DEFAULT 0;
+  ADD COLUMN `IsVerified` TINYINT(1) NOT NULL DEFAULT 0,
+  ADD COLUMN `HoTen` VARCHAR(200) DEFAULT NULL,
+  ADD COLUMN `GoogleId` VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN `AnhDaiDien` VARCHAR(1000) DEFAULT NULL,
+  ADD UNIQUE KEY `uq_nguoidung_google_id` (`GoogleId`);
 
 -- Các tài khoản seed cũ đã được tạo sẵn, không cần OTP lần đầu.
 UPDATE `NguoiDung` SET `IsVerified` = 1 WHERE `IsVerified` = 0;
 
-CREATE TABLE `OTP_Verification` (
-  `Id` INT NOT NULL AUTO_INCREMENT,
-  `MaNguoiDung` INT NOT NULL,
-  `MaOTP` VARCHAR(255) NOT NULL,
-  `HetHanLuc` DATETIME NOT NULL,
-  `DaSuDung` TINYINT(1) NOT NULL DEFAULT 0,
-  `NgayTao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Id`),
-  KEY `idx_otp_user_created` (`MaNguoiDung`, `NgayTao`),
-  CONSTRAINT `fk_otp_nguoidung`
-    FOREIGN KEY (`MaNguoiDung`) REFERENCES `NguoiDung` (`MaNguoiDung`)
-    ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `OTP_Verification`;

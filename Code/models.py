@@ -1,4 +1,4 @@
-"""SQLAlchemy models khớp với schema 9 bảng trong ``init_db.sql``."""
+"""SQLAlchemy models khớp với schema 11 bảng trong ``init_db.sql``."""
 
 from __future__ import annotations
 
@@ -7,7 +7,19 @@ from decimal import Decimal
 from enum import Enum as PyEnum
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, Numeric, String, Text, text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -62,6 +74,9 @@ class NguoiDung(Base):
     MaNguoiDung: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     TenDangNhap: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     Email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    HoTen: Mapped[str | None] = mapped_column(String(200))
+    GoogleId: Mapped[str | None] = mapped_column(String(255), unique=True)
+    AnhDaiDien: Mapped[str | None] = mapped_column(String(1000))
     MatKhauHash: Mapped[str] = mapped_column(String(255), nullable=False)
     VaiTro: Mapped[VaiTroNguoiDung] = mapped_column(
         Enum(VaiTroNguoiDung, values_callable=lambda cls: [item.value for item in cls]),
@@ -82,28 +97,6 @@ class NguoiDung(Base):
     ahp_history: Mapped[list[AHPHistory]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
-
-
-class OTPVerification(Base):
-    """Mã OTP xác thực email, có hiệu lực trong thời gian giới hạn."""
-
-    __tablename__ = "OTP_Verification"
-
-    Id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    MaNguoiDung: Mapped[int] = mapped_column(
-        ForeignKey("NguoiDung.MaNguoiDung", ondelete="CASCADE", onupdate="CASCADE"),
-        nullable=False,
-    )
-    MaOTP: Mapped[str] = mapped_column(String(255), nullable=False)
-    HetHanLuc: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    DaSuDung: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default=text("0")
-    )
-    NgayTao: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
-
-    nguoi_dung: Mapped[NguoiDung] = relationship()
 
 
 class SauHai(Base):
@@ -177,6 +170,13 @@ class AHPHistory(Base):
 
 class SauHaiGiaiPhap(Base):
     __tablename__ = "SauHai_GiaiPhap"
+    __table_args__ = (
+        UniqueConstraint(
+            "MaSauHai",
+            "MaGiaiPhap",
+            name="uq_sauhai_giaiphap",
+        ),
+    )
 
     MaLienKet: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     MaSauHai: Mapped[int] = mapped_column(

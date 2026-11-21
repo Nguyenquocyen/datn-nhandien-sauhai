@@ -72,6 +72,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         html { overflow-x: hidden; }
@@ -137,7 +138,7 @@
             #chat-panel textarea { min-width: 0; }
             #chat-panel form button { padding-inline: 0.8rem; }
             #chat-launcher { right: 0.75rem; bottom: 0.75rem; }
-            #dss-modal > div, #ahp-modal > div, #knn-modal > div {
+            #ahp-modal > div, #knn-modal > div {
                 max-height: calc(100dvh - 2rem);
                 overflow-y: auto;
                 padding: 1.1rem;
@@ -169,17 +170,58 @@
                 </span>
             </a>
             <div id="primary-nav" class="hidden items-center gap-2 md:flex">
-                <a href="{{ url_for('dashboard') }}" class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">Trang chủ</a>
-                <a href="{{ url_for('history_page') }}" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Nhật ký quét</a>
-                <a href="{{ url_for('dictionary') }}" class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Từ điển sâu bệnh</a>
+                <a href="{{ url_for('dashboard') }}" class="rounded-lg px-4 py-2 text-sm font-semibold {% if request.url.path == '/' %}bg-primary text-white{% else %}text-slate-600 hover:bg-slate-100{% endif %}">Trang chủ</a>
+                <a href="{{ url_for('history_page') }}" class="rounded-lg px-4 py-2 text-sm font-semibold {% if request.url.path == '/history' %}bg-primary text-white{% else %}text-slate-600 hover:bg-slate-100{% endif %}">Nhật ký quét</a>
+                <a href="{{ url_for('dictionary') }}" class="rounded-lg px-4 py-2 text-sm font-semibold {% if request.url.path == '/dictionary' %}bg-primary text-white{% else %}text-slate-600 hover:bg-slate-100{% endif %}">Từ điển sâu bệnh</a>
             </div>
-            <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">● AI Online</span>
+            <div class="flex items-center gap-2">
+                <div id="google-auth-container">
+                    <div id="g_id_onload"
+                         data-client_id="208794080286-qiiivi2nv892q9sj9pr5d64oj5ipdphc.apps.googleusercontent.com"
+                         data-callback="handleGoogleLogin"
+                         data-auto_prompt="false"></div>
+                    <div class="g_id_signin" data-type="standard" data-size="medium" data-theme="outline"></div>
+                    <p id="auth-status" class="hidden max-w-48 text-xs text-red-600"></p>
+                </div>
+                <div id="user-profile-container" class="hidden items-center gap-2">
+                    <img id="user-avatar" class="h-8 w-8 rounded-full object-cover" alt="Ảnh đại diện">
+                    <span id="user-name" class="hidden max-w-32 truncate text-sm font-semibold text-slate-700 sm:inline"></span>
+                    <button id="logout-button" type="button" class="rounded-lg px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100">Thoát</button>
+                </div>
+            </div>
         </nav>
     </header>
 
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {% block content %}{% endblock %}
     </main>
+
+    <div id="welcome-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
+            <div class="text-center">
+                <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-3xl">🌾</div>
+                <h2 id="welcome-modal-title" class="mt-4 text-2xl font-bold text-slate-900">Chào mừng đến AgroScan AI</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-500">Đăng nhập để lưu lịch sử quét và sử dụng đầy đủ các tính năng cá nhân.</p>
+            </div>
+            <div class="mt-6 space-y-3">
+                <div id="welcome-google-button" class="flex justify-center"></div>
+                <p id="welcome-auth-status" class="hidden text-center text-xs text-red-600"></p>
+                <button id="guest-mode-button" type="button" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Trải nghiệm dưới dạng Khách</button>
+            </div>
+            <p class="mt-5 text-center text-xs text-slate-400">Bạn có thể đăng nhập bất cứ lúc nào từ góc phải màn hình.</p>
+        </div>
+    </div>
+
+    <div id="member-gate-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="member-gate-title">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 id="member-gate-title" class="text-xl font-bold text-slate-900">Tính năng dành cho thành viên</h2>
+            <p class="mt-3 text-sm leading-6 text-slate-600">Tính năng Nhật ký chỉ dành cho thành viên. Vui lòng đăng nhập để lưu kết quả.</p>
+            <div class="mt-6 flex gap-3">
+                <button id="member-login-button" type="button" class="flex-1 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary-dark">Đăng nhập ngay</button>
+                <button id="member-gate-close-button" type="button" class="rounded-xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Đóng</button>
+            </div>
+        </div>
+    </div>
 
     <aside id="chat-panel" class="fixed bottom-4 right-4 z-30 flex h-[min(600px,calc(100vh-6rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <div class="flex items-center justify-between bg-primary px-4 py-3 text-white">
@@ -207,7 +249,7 @@
     </aside>
     <button id="chat-launcher" type="button" aria-label="Mở chatbot" title="Mở chatbot" class="fixed bottom-4 right-4 z-30 hidden h-14 w-14 items-center justify-center rounded-full bg-primary text-2xl text-white shadow-xl transition hover:scale-105 hover:bg-primary-dark">✦</button>
 
-    <script src="{{ url_for('static', path='js/main.js') }}?v=9"></script>
+    <script src="{{ url_for('static', path='js/main.js') }}?v=14"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

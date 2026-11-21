@@ -12,6 +12,7 @@ if __package__ in (None, ""):
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import inspect, text
@@ -19,6 +20,7 @@ from sqlalchemy import inspect, text
 from .routers.analyze import router as analyze_router
 from .routers.auth import router as auth_router
 from .routers.chat import router as chat_router
+from .routers.dictionary import router as dictionary_router
 from .routers.history import router as history_router
 from . import models
 from .database import engine
@@ -45,6 +47,7 @@ app.add_middleware(
 app.include_router(analyze_router)
 app.include_router(auth_router)
 app.include_router(chat_router)
+app.include_router(dictionary_router)
 app.include_router(history_router)
 
 
@@ -76,11 +79,19 @@ def initialize_database() -> None:
         "NguonTrichDan": "VARCHAR(1000) NULL",
         "GhiChuTrichDan": "TEXT NULL",
     }
+    user_columns = {
+        "HoTen": "VARCHAR(200) NULL",
+        "GoogleId": "VARCHAR(255) NULL UNIQUE",
+        "AnhDaiDien": "VARCHAR(1000) NULL",
+    }
     existing_pest_columns = {
         column["name"] for column in inspect(engine).get_columns("SauHai")
     }
     existing_history_columns = {
         column["name"] for column in inspect(engine).get_columns("LichSuCanhTac")
+    }
+    existing_user_columns = {
+        column["name"] for column in inspect(engine).get_columns("NguoiDung")
     }
     with engine.begin() as connection:
         for column_name, column_type in score_columns.items():
@@ -104,6 +115,14 @@ def initialize_database() -> None:
                 connection.execute(
                     text(
                         f"ALTER TABLE `LichSuCanhTac` "
+                        f"ADD COLUMN `{column_name}` {column_type}"
+                    )
+                )
+        for column_name, column_type in user_columns.items():
+            if column_name not in existing_user_columns:
+                connection.execute(
+                    text(
+                        f"ALTER TABLE `NguoiDung` "
                         f"ADD COLUMN `{column_name}` {column_type}"
                     )
                 )
@@ -142,13 +161,9 @@ def dictionary(request: Request):
 
 
 @app.get("/login", tags=["frontend"])
-def login_page(request: Request):
-    """Render trang đăng nhập độc lập."""
-    return templates.TemplateResponse(
-        request=request,
-        name="login.html",
-        context={"request": request},
-    )
+def login_page():
+    """Redirect legacy login links to the Google Identity Services entry point."""
+    return RedirectResponse(url="/", status_code=307)
 
 
 @app.get("/health", tags=["system"])

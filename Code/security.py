@@ -20,7 +20,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-development-secret")
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/auth/login",
+    tokenUrl="/api/auth/google",
     auto_error=False,
 )
 
@@ -33,10 +33,17 @@ def verify_password(password: str, password_hash: str) -> bool:
     return password_context.verify(password, password_hash)
 
 
-def create_access_token(user: NguoiDung) -> str:
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
+def create_access_token(
+    user: NguoiDung,
+    expires_minutes: int | None = None,
+) -> str:
+    expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=expires_minutes or JWT_EXPIRE_MINUTES
+    )
     payload = {
         "sub": str(user.MaNguoiDung),
+        "user_id": user.MaNguoiDung,
+        "email": user.Email,
         "role": user.VaiTro.value,
         "exp": expires_at,
     }
